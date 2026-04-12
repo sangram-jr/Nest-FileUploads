@@ -1,12 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 //import cloudinary from 'src/config/cloudinary.config';
 import { v2 as cloudinary } from 'cloudinary';
+import { Upload } from './schemas/upload.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class UploadService {
-    constructor(private readonly configService:ConfigService){
+    constructor(
+        private readonly configService:ConfigService,
+        @InjectModel(Upload.name) private uploadModel: Model<Upload>
+    ){
         cloudinary.config({
             cloud_name: this.configService.get<string>('CLOUD_NAME'),
             api_key: this.configService.get<string>('API_KEY'),
@@ -40,5 +46,39 @@ export class UploadService {
             ).end(file.buffer)
         });
         
+    }
+
+    async saveFile(data:any){
+        const uploadedFile= await this.uploadModel.create(data);
+        return{
+            message:"File Uploaded Successfully",
+            uploadedFile:uploadedFile
+        }
+    }
+
+    async getFiles(collectionId: string, userId: string) {
+        return await this.uploadModel.find({
+            collectionId:collectionId,
+            userId:userId
+        })
+    }
+
+    async deleteFile(fileId: string, userId: string) {
+        const file = await this.uploadModel.findOne({
+            _id: fileId,
+            userId:userId,
+        });
+
+        if (!file) throw new NotFoundException('File not found');
+
+        // delete from cloudinary
+        await cloudinary.uploader.destroy(file.public_id, {
+            resource_type: file.format === 'pdf' ? 'raw' : 'image',
+        });
+
+        // delete from DB
+        await this.uploadModel.deleteOne({ _id: fileId });
+
+        return { message: 'File deleted' };
     }
 }
