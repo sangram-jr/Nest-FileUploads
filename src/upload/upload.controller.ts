@@ -3,6 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import type { AuthRequest } from 'src/auth/interfaces/auth-request.interface';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 
 
 @Controller('upload')
@@ -24,7 +25,7 @@ export class UploadController {
             })
         ) 
         file: Express.Multer.File,
-        @Req() req: AuthRequest,
+        @GetUser('sub') userId:string,
     ){
             //main logic in uploadFile method
             //console.log(file);
@@ -36,7 +37,7 @@ export class UploadController {
                 public_id:result.public_id,
                 format:result.format,
                 collectionId:collectionId,
-                userId:req.user.sub,
+                userId:userId,
 
             });
     }
@@ -46,17 +47,17 @@ export class UploadController {
     @Get(':collectionId')
     getFiles(
         @Param('collectionId') collectionId: string,
-        @Req() req: AuthRequest,
+        @GetUser('sub') userId:string,
     ){
-        const userId=req.user.sub;
+        //const userId=req.user.sub;
         return this.uploadService.getFiles(collectionId,userId);
     }
     
 
     @UseGuards(AuthGuard)
     @Delete(':fileId')
-    remove(@Param('fileId') fileId: string, @Req() req: AuthRequest) {
-        const userId=req.user.sub;
+    remove(@Param('fileId') fileId: string, @GetUser('sub') userId:string) {
+        //const userId=req.user.sub;
         return this.uploadService.deleteFile(fileId, userId);
     }
     

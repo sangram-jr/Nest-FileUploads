@@ -4,6 +4,7 @@ import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import type { AuthRequest } from 'src/auth/interfaces/auth-request.interface';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 
 @Controller('collection')
 export class CollectionController {
@@ -11,15 +12,15 @@ export class CollectionController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Req() req:AuthRequest, @Body() createCollectionDto: CreateCollectionDto) {
-    const usedId=req.user.sub;
-    return this.collectionService.create(usedId,createCollectionDto);
+  create(@GetUser('sub') userId:string, @Body() createCollectionDto: CreateCollectionDto) {
+    //const usedId=req.user.sub;
+    return this.collectionService.create(userId,createCollectionDto);
   }
 
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Req() req:AuthRequest) {
-    const userId=req.user.sub;
+  findAll(@GetUser('sub') userId:string) {
+    //const userId=req.user.sub;
     return this.collectionService.findAll(userId);
   }
 
@@ -31,18 +32,18 @@ export class CollectionController {
   @UseGuards(AuthGuard)
   @Patch(':collectionId')
   update(
-    @Req() req:AuthRequest,
+    @GetUser('sub') userId:string,
     @Param('collectionId') collectionId: string, 
     @Body() updateCollectionDto: UpdateCollectionDto
   ) {
-    const userId=req.user.sub;
+    //const userId=req.user.sub;
     return this.collectionService.update(collectionId,userId, updateCollectionDto);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':collectionId')
-  remove(@Req() req:AuthRequest,@Param('collectionId') collectionId: string) {
-    const userId=req.user.sub;
+  remove(@GetUser('sub') userId:string,@Param('collectionId') collectionId: string) {
+    //const userId=req.user.sub;
     return this.collectionService.remove(collectionId,userId);
   }
 }
