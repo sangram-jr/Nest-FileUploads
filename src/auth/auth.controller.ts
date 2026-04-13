@@ -4,7 +4,8 @@ import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/registerUser.dto';
 import { LoginDto } from './dto/loginUser.dto';
 import { AuthGuard } from './guards/auth.guard';
-import type { AuthRequest } from './interfaces/auth-request.interface';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+
 
 @Controller('auth')
 export class AuthController {
@@ -29,9 +30,9 @@ export class AuthController {
     // /auth/profile
     @UseGuards(AuthGuard)//protecting route
     @Get('profile')
-    async getProfile(@Request() req:AuthRequest){
+    async getProfile(@GetUser('sub') userId:string){
         //get the userId from token
-        const userId=req.user.sub;
+        //const userId=req.user.sub;
         const user=await this.userService.getUserById(userId);
         //console.log(user);
         //return user;

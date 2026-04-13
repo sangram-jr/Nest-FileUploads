@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { JwtPayload } from '../../common/interfaces/jwt-payload.interface';
 
 
 

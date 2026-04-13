@@ -1,9 +1,9 @@
-import { Controller, Delete, Get, Param, ParseFilePipe, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseFilePipe, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import type { AuthRequest } from 'src/auth/interfaces/auth-request.interface';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { MongoIdPipe } from 'src/common/pipes/mongo-id.pipe';
 
 
 @Controller('upload')
@@ -14,7 +14,7 @@ export class UploadController {
     @Post(':collectionId')
     @UseInterceptors(FileInterceptor('file'))//file->fieldname  , inside postman,inside body,form-data-> select File key=file  value=chose file from folder
     async uploadFile(
-        @Param('collectionId') collectionId: string,
+        @Param('collectionId',MongoIdPipe) collectionId: string,
         @UploadedFile(
             //in built file-validator(pipe)
             new ParseFilePipe({
@@ -46,7 +46,7 @@ export class UploadController {
     @UseGuards(AuthGuard)
     @Get(':collectionId')
     getFiles(
-        @Param('collectionId') collectionId: string,
+        @Param('collectionId',MongoIdPipe) collectionId: string,
         @GetUser('sub') userId:string,
     ){
         //const userId=req.user.sub;
@@ -56,7 +56,7 @@ export class UploadController {
 
     @UseGuards(AuthGuard)
     @Delete(':fileId')
-    remove(@Param('fileId') fileId: string, @GetUser('sub') userId:string) {
+    remove(@Param('fileId',MongoIdPipe) fileId: string, @GetUser('sub') userId:string) {
         //const userId=req.user.sub;
         return this.uploadService.deleteFile(fileId, userId);
     }

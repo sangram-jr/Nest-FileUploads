@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { CollectionService } from './collection.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import type { AuthRequest } from 'src/auth/interfaces/auth-request.interface';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { MongoIdPipe } from 'src/common/pipes/mongo-id.pipe';
 
 @Controller('collection')
 export class CollectionController {
@@ -33,7 +33,7 @@ export class CollectionController {
   @Patch(':collectionId')
   update(
     @GetUser('sub') userId:string,
-    @Param('collectionId') collectionId: string, 
+    @Param('collectionId',MongoIdPipe) collectionId: string, 
     @Body() updateCollectionDto: UpdateCollectionDto
   ) {
     //const userId=req.user.sub;
@@ -42,7 +42,7 @@ export class CollectionController {
 
   @UseGuards(AuthGuard)
   @Delete(':collectionId')
-  remove(@GetUser('sub') userId:string,@Param('collectionId') collectionId: string) {
+  remove(@GetUser('sub') userId:string,@Param('collectionId',MongoIdPipe) collectionId: string) {
     //const userId=req.user.sub;
     return this.collectionService.remove(collectionId,userId);
   }

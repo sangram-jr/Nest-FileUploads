@@ -1,6 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { AuthRequest } from 'src/auth/interfaces/auth-request.interface';
-import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+
+import { JwtPayload } from 'src/common/interfaces/jwt-payload.interface';
+import { AuthRequest } from '../interfaces/auth-request.interface';
 
 export const GetUser = createParamDecorator(
   (data: keyof JwtPayload | undefined, ctx: ExecutionContext) => { //here data means-> when i use @GetUser('sub')-> here data='sub'
